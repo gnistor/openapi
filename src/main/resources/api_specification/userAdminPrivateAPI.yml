@@ -1,0 +1,112 @@
+openapi: 3.0.0
+info:
+  version: '1.0'
+  title: API_DEMO_OAS3
+servers:
+  - url: 'http://localhost:8080/api/'
+paths:
+  /addUserPC:
+    post:
+      summary: 'Adds the associated user'
+      description: 'Add the associated user (internal use only)'
+      tags:
+        - security
+      operationId: addUserPC
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserDTORequest'
+      responses:
+        '200':
+          description: 'Raspuns cu succes'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDTOResponse'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+
+components:
+  responses:
+    NotFound:
+      description: The specified resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+  schemas:
+
+    UserDTORequest:
+      type: object
+      required:
+        - username
+        - password
+        - role
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+        group:
+          type: string
+
+    UserDTOResponse:
+      type: object
+      required:
+        - succes
+        - message
+      properties:
+        succes:
+          type: boolean
+          example: true
+        message:
+          type: string
+    ApiError:
+      type: object
+      required:
+        - status
+        - message
+        - errors
+      properties:
+        status:
+          type: integer
+          format: int32
+          example: 500
+        message:
+          type: string
+          example: 'Internal server error'
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              errorType:
+                type: string
+              detailedMessage:
+                type: string
+          example:
+            - errorType: MethodArgumentNotValidException
+              detailedMessage: 'default message [size must be between 1 and 10]'
+            - errorType: MissingServletRequestPartException
+              detailedMessage: 'Required request part offencesBatchRequest is not present'
+
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - bearerAuth: []
